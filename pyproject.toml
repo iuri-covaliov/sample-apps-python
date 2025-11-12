@@ -52,6 +52,10 @@ exclude = [
     "migrations/"
 ]
 
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+
 [tool.pytest.ini_options]
 addopts = "-v -r a -s"
 testpaths = [

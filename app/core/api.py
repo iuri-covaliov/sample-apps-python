@@ -1,14 +1,17 @@
 import json
 from http.server import BaseHTTPRequestHandler
+from typing import Any, Callable
 from urllib.parse import urlparse, parse_qs
 
 
 class ApiRequestHandler(BaseHTTPRequestHandler):
-    def __init__(self, request, client_address, ref_req, api_ref):
+    def __init__(
+        self, request: Any, client_address: Any, ref_req: Any, api_ref: "API"
+    ) -> None:
         self.api = api_ref
         super().__init__(request, client_address, ref_req)
 
-    def call_api(self, method, path, args):
+    def call_api(self, method: str, path: str, args: Any) -> None:
         if path in self.api.routing[method]:
             try:
                 result = self.api.routing[method][path](args)
@@ -24,7 +27,7 @@ class ApiRequestHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({"error": "not found"}, indent=4).encode())
 
-    def do_GET(self):
+    def do_GET(self) -> None:
         parsed_url = urlparse(self.path)
         path = parsed_url.path
         args: dict[str, list[str]] = parse_qs(parsed_url.query)
@@ -35,7 +38,7 @@ class ApiRequestHandler(BaseHTTPRequestHandler):
 
         self.call_api("GET", path, args)
 
-    def do_POST(self):
+    def do_POST(self) -> None:
         parsed_url = urlparse(self.path)
         path = parsed_url.path
         if self.headers.get("content-type") != "application/json":
@@ -54,21 +57,28 @@ class ApiRequestHandler(BaseHTTPRequestHandler):
 
 class API:
     def __init__(self) -> None:
-        self.routing = {"GET": {}, "POST": {}}
+        self.routing: dict[str, dict[str, Callable[[Any], Any]]] = {
+            "GET": {},
+            "POST": {},
+        }
 
-    def get(self, path):
-        def wrapper(fn) -> None:
+    def get(self, path: str) -> Callable[[Callable[[Any], Any]], Callable[[Any], Any]]:
+        def wrapper(fn: Callable[[Any], Any]) -> Callable[[Any], Any]:
             self.routing["GET"][path] = fn
+            return fn
 
         return wrapper
 
-    def post(self, path):
-        def wrapper(fn) -> None:
+    def post(self, path: str) -> Callable[[Callable[[Any], Any]], Callable[[Any], Any]]:
+        def wrapper(fn: Callable[[Any], Any]) -> Callable[[Any], Any]:
             self.routing["POST"][path] = fn
+            return fn
 
         return wrapper
 
-    def __call__(self, request, client_address, ref_request):
+    def __call__(
+        self, request: Any, client_address: Any, ref_request: Any
+    ) -> ApiRequestHandler:
         api_handler = ApiRequestHandler(
             request, client_address, ref_request, api_ref=self
         )
