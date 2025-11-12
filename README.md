@@ -12,7 +12,7 @@ Barebones for a modern Python projects.
 - **Pydantic-settings**: framework for centralized handling of the app settings (app/config.py)
 - **logging**: basic logging
 - **github workflow**: (!NOT IMPLEMENTED YET) basic CI/CD pipeline
-- **dockerization**: (!NOT IMPLEMENTED YET) basic Dockerfile and docker-compose
+- **dockerization**: basic Dockerfile and docker-compose
 
 ## Config.py and environment variables.
 
@@ -127,5 +127,20 @@ To simplify the usage of the Python apps standardized make command added to each
 • test               Run unit tests
 • type-app           Static type-check of the app code with mypy
 • type               Static type-check of the whole project with mypy
+```
+---
+
+## Dockerization
+
+```
+# build the image locally
+docker compose build
+
+# start the app on a container
+docker compose up -d        # start the the container in the background
+docker compose up           # start the the container with logs
+
+# view logs
+docker compose logs
 ```
 ---

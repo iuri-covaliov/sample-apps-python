@@ -1,0 +1,16 @@
+name: py-app
+
+services:
+  web:
+    build:
+      context: .
+      args:
+        MODE: ${MODE:-DEV}
+        PORT: ${PORT:-5000}
+    container_name: web
+    ports:
+      - "${PORT:-5000}:${PORT:-5000}"
+    environment:
+      - MODE=${MODE:-DEV}
+      - PORT=${PORT:-5000}
+    command: ["uv", "run", "-m", "app.main"]
