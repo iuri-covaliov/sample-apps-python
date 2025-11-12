@@ -1,49 +1,50 @@
-from typing import Union
+from http.server import HTTPServer
+import logging
+from typing import Any
 
+from app.core.api import API
 from app.core.config import Settings
-from app.core.logging import setup_logging, get_logger
+from app.core.logging import get_logger, setup_logging
 
 
-def check_numbers(a: Union[int, float], b: Union[int, float]) -> None:
-    """Check if the values are numbers (int or float)."""
-    if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):
-        raise TypeError("Both arguments must be int or float.")
+def create_app(settings: Settings, logger: logging.Logger) -> API:
+    """Create and configure the API application."""
+
+    logger.info(f"Initializing {settings.APP.NAME} version {settings.APP.VERSION}")
+    api = API()
+
+    @api.get("/")
+    def index(_) -> dict[str, Any]:
+        return {
+            "name": settings.APP.NAME,
+            "description": settings.APP.DESCRIPTION,
+            "actions": ["health"],
+            "version": settings.APP.VERSION,
+        }
+
+    @api.get("/health")
+    def health(_) -> dict[str, Any]:
+        return {"status": "healthy"}
+
+    logger.info("API application created successfully.")
+
+    return api
 
 
-class Calculator:
-    """Simple calculator class to perform basic arithmetic operations."""
+def create_server(settings: Settings, logger: logging.Logger) -> HTTPServer:
+    api = create_app(settings, logger)
+    PORT = settings.APP.PORT
 
-    @staticmethod
-    def add(a: Union[int, float], b: Union[int, float]) -> Union[int, float]:
-        """Return the sum of two numbers."""
-        check_numbers(a, b)
-        return a + b
+    logger.info(f"Starting httpd server on 0.0.0.0:{PORT}")
+    httpd = HTTPServer(("0.0.0.0", PORT), api)
+    logger.info(f"httpd server started at http://0.0.0.0:{PORT}/")
 
-    @staticmethod
-    def subtract(a: Union[int, float], b: Union[int, float]) -> Union[int, float]:
-        """Return the difference of two numbers."""
-        check_numbers(a, b)
-        return a - b
-
-    @staticmethod
-    def multiply(a: Union[int, float], b: Union[int, float]) -> Union[int, float]:
-        """Return the product of two numbers."""
-        check_numbers(a, b)
-        return a * b
-
-    @staticmethod
-    def divide(a: Union[int, float], b: Union[int, float]) -> Union[int, float]:
-        """Return the quotient of two numbers. Raises ValueError on division by zero."""
-        check_numbers(a, b)
-        if b == 0:
-            raise ValueError("Cannot divide by zero.")
-        return a / b
+    return httpd
 
 
 def main() -> None:
     settings = Settings()
-
-    print("App Settings. Log level: ", settings.LOGGING.LEVEL)
+    print("Setting up the application...")
 
     setup_logging(
         level=settings.LOGGING.LEVEL,
@@ -52,18 +53,9 @@ def main() -> None:
     )
 
     logger = get_logger(__name__)
-    logger.info(f"Logging initialized with level: {settings.LOGGING.LEVEL}")
-    logger.warning("This is a warning message.")
-    logger.error("This is an error message.")
-    logger.debug("Logging correctly set to DEBUG level.")
 
-    logger.info(f"{settings.APP.NAME} v{settings.APP.VERSION} initialized.")
-
-    calc = Calculator()
-    logger.info("Addition: %s", calc.add(10, 5))
-    logger.info("Subtraction: %s", calc.subtract(10, 5))
-    logger.info("Multiplication: %s", calc.multiply(10, 5))
-    logger.info("Division: %s", calc.divide(10, 5))
+    httpd = create_server(settings, logger)
+    httpd.serve_forever()
 
 
 if __name__ == "__main__":

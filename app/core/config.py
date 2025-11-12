@@ -12,10 +12,11 @@ load_dotenv()
 
 
 class AppSettings(BaseModel):
-    NAME: str = "My Python App"
+    NAME: str = "Sample Python REST API App"
     DATA_DIR: Path = BASE_DIR / "data"
-    DESCRIPTION: str = "Python App Barebones"
+    DESCRIPTION: str = "Sample Python REST API App"
     VERSION: str = "0.1.0"
+    PORT: int = 5000
 
 
 class LoggingSettings(BaseModel):

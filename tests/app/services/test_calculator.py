@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from app.main import Calculator, main
+from app.services.calculator import Calculator, main
 
 
 class TestCheckNumbers:
@@ -107,8 +107,8 @@ class TestCalculator:
 class TestMain:
     """Test the main function behavior."""
 
-    @patch("app.main.setup_logging")
-    @patch("app.main.get_logger")
+    @patch("app.services.calculator.setup_logging")
+    @patch("app.services.calculator.get_logger")
     @patch("builtins.print")
     def test_main_function_calls_and_logging(
         self,
@@ -136,7 +136,7 @@ class TestMain:
         )
 
         # Verify get_logger was called
-        mock_get_logger.assert_called_once_with("app.main")
+        mock_get_logger.assert_called_once_with("app.services.calculator")
 
         # Check logger calls
         assert mock_logger.info.call_count == 6

@@ -6,7 +6,7 @@
 
 # ---------- Project parameters ----------
 # Here you can set app-specific parameters, e.g.:
-# APP_MODULE					:= app.main:app
+# APP_MODULE					:= app.main:api
 # HOST                := 0.0.0.0
 # PORT                := $(or $(APP_PORT),8000)
 
@@ -76,5 +76,5 @@ ci: ## Run the same steps CI does (lint, typecheck, tests with coverage)
 # ---------- Run (local code) ----------
 # Define run command for your app in the Makefile here
 run: ## Run the app
-	@$(RUN) -m app.main
+	@$(RUN) app.main
 # 	@$(RUN) <command to run the app>
