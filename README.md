@@ -7,7 +7,7 @@ Barebones for a modern Python projects.
 - **uv**: package and project manager
 - **mypy**: tool for static type-check
 - **ruff**: tool for linting and code formatting
-- **pytest**: (!NOT IMPLEMENTED YET) framework for tests
+- **pytest**: framework for tests + basic test suite
 - **Makefile**: set of pre-configured commands for project maintainance and running the app
 - **Pydantic-settings**: framework for centralized handling of the app settings (app/config.py)
 - **logging**: basic logging

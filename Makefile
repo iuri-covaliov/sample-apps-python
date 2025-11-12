@@ -57,7 +57,7 @@ type-app: ## Static type-check of the app code with mypy
 	@$(RUN) mypy app
 
 test: ## Run unit tests
-	@$(RUN) pytest
+	@$(RUN) pytest -v
 
 coverage: ## Tests + HTML coverage
 	@$(RUN) coverage run -m pytest

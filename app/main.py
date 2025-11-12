@@ -43,6 +43,8 @@ class Calculator:
 def main() -> None:
     settings = Settings()
 
+    print("App Settings. Log level: ", settings.LOGGING.LEVEL)
+
     setup_logging(
         level=settings.LOGGING.LEVEL,
         fmt=settings.LOGGING.FORMAT,
@@ -51,6 +53,9 @@ def main() -> None:
 
     logger = get_logger(__name__)
     logger.info(f"Logging initialized with level: {settings.LOGGING.LEVEL}")
+    logger.warning("This is a warning message.")
+    logger.error("This is an error message.")
+    logger.debug("Logging correctly set to DEBUG level.")
 
     logger.info(f"{settings.APP.NAME} v{settings.APP.VERSION} initialized.")
 

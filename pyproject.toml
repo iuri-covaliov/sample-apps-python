@@ -52,11 +52,8 @@ exclude = [
     "migrations/"
 ]
 
-# pyproject.toml
 [tool.pytest.ini_options]
-minversion = "6.0"
-# addopts = "-ra -q"
-addopts = "-rvV"
+addopts = "-v -r a -s"
 testpaths = [
     "tests",
     "integration",
