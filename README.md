@@ -11,8 +11,10 @@ Barebones for a modern Python projects.
 - **Makefile**: set of pre-configured commands for project maintainance and running the app
 - **Pydantic-settings**: framework for centralized handling of the app settings (app/config.py)
 - **logging**: basic logging
-- **github workflow**: (!NOT IMPLEMENTED YET) basic CI/CD pipeline
+- **github workflow**: basic CI/CD pipeline
 - **dockerization**: basic Dockerfile and docker-compose
+
+> App specifics depends on the branch, information about current implementation is [here](app/README.md)
 
 ## Config.py and environment variables.
 
@@ -95,16 +97,16 @@ All app code could be checked and tested using:
     make type
     make type-app
     ```
-- **Unit tests**: a unit tests suite with a coverage report
+- **Tests**: a test suite with a coverage report
     ```
-    uv run pytest                                 # run unit tests
+    uv run pytest                                 # run tests
     uv run coverage run -m pytest                 # run tests and calculate coverage
     uv run coverage report -m                     # show coverage report
     # run a specific test
     uv run python -m pytest tests/test_config.py::test_app_name_from_env -xvs
 
     # using make
-    make test                                     # run unit tests
+    make test                                     # run tests
     make coverage                                 # run tests, calculate and show coverage report
     ```
 ---
@@ -143,4 +145,74 @@ docker compose up           # start the the container with logs
 # view logs
 docker compose logs
 ```
+---
+
+## CI/CD
+
+### Local CI pipeline
+
+Aggregates all checks and testing configure locally and includes:
+- **Linting check**
+- **Code style check**
+- **Types consistency check**
+- **Tests**
+
+To start the pipeline run
+```
+make ci
+```
+---
+
+### Github workflow
+
+Performs 2 jobs:
+- **build-and-test**: has steps simiilar to what the local CI pipeline does
+- **deploy**: triggers deployment hook on Render cloud service
+
+## Deployment
+
+This project is configured to be be deployed to [Render](https://render.com/) cloud service using a free tier environment.
+
+### Set up an environment on Render
+
+- log in to Render with your Google or Github accout
+- go to your workspace
+- select "New" -> "Web Service"
+- for "Git Provider" select "Github"
+- select Only "select repositories" and choose your repository you're going ot deploy from and push "Install"
+- now you should be able to see the selected repository in the list under the "Git Provider"; select it
+- give a name to your new service
+- for "Language" select "Python 3"
+- if you're going to deploy from a branch that is not main, select it
+- if you like you can change the region where your app will be deployed to
+- for build command type:
+```
+pip install uv && uv sync --no-dev
+```
+- for start command type:
+```
+uv run -m app.main
+```
+- for "Instance Type" select "Free"
+- push Deploy Web Service
+- once deployment is successfully completed you'll see the link (also available in your service' settings) to your web application; try it.
+
+Now you need to obtain a deployment URL to use in your Github project. Go to the settings of your Web Service and copy the value of the "Deploy Hook".
+---
+
+### Configure Github project for deployment to Render
+
+- in your project go to "Settings" -> Environments
+- push "New Environment,name it and push "Configure environment"
+- under "Environment Secrets" push "Add environment secret"
+- type "RENDER_DEPLOY_HOOK" in the "Name" and paste the URL obteined on the previous section on Render to the "Value" field
+- push "Add secret"
+---
+
+### Deployment job in CI/CD pipeline
+
+Guthub worflow (cicd.yml) has the "deploy" which triggers the deployment to the Web Service on Render using RENDER_DEPLOY_HOOK from secrets.
+Adjust the workflow according to your needs. Branch in workflow's triggers should be the same that is set in the Web Service configuration on Render.
+Now project is ready to be deployed to Render
+
 ---

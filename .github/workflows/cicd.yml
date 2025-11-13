@@ -1,0 +1,50 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - barebones
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      MODE: DEV
+      PORT: 5000
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.14'
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install uv
+          uv sync
+      - name: Linting
+        run: |
+          uv run ruff check
+      - name: Code style check
+        run: |
+          uv run ruff format --check
+      - name: Static type-check
+        run: |
+          uv run mypy app
+      - name: Run tests
+        run: |
+          uv run coverage run -m pytest
+          uv run coverage report -m
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    environment: render-dev
+    steps:
+      - name: Deploy to Render (dev)
+        run: |
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK}}
