@@ -1,49 +1,12 @@
-from typing import Union
-
 from app.core.config import Settings
+from app.core.appcontext import AppContext
+from app.core.dummy_app import DummyApp as App
 from app.core.logging import setup_logging, get_logger
 
 
-def check_numbers(a: Union[int, float], b: Union[int, float]) -> None:
-    """Check if the values are numbers (int or float)."""
-    if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):
-        raise TypeError("Both arguments must be int or float.")
-
-
-class Calculator:
-    """Simple calculator class to perform basic arithmetic operations."""
-
-    @staticmethod
-    def add(a: Union[int, float], b: Union[int, float]) -> Union[int, float]:
-        """Return the sum of two numbers."""
-        check_numbers(a, b)
-        return a + b
-
-    @staticmethod
-    def subtract(a: Union[int, float], b: Union[int, float]) -> Union[int, float]:
-        """Return the difference of two numbers."""
-        check_numbers(a, b)
-        return a - b
-
-    @staticmethod
-    def multiply(a: Union[int, float], b: Union[int, float]) -> Union[int, float]:
-        """Return the product of two numbers."""
-        check_numbers(a, b)
-        return a * b
-
-    @staticmethod
-    def divide(a: Union[int, float], b: Union[int, float]) -> Union[int, float]:
-        """Return the quotient of two numbers. Raises ValueError on division by zero."""
-        check_numbers(a, b)
-        if b == 0:
-            raise ValueError("Cannot divide by zero.")
-        return a / b
-
-
-def main() -> None:
+def create_app_context() -> AppContext:
+    print("Initializing application context...")
     settings = Settings()
-
-    print("App Settings. Log level: ", settings.LOGGING.LEVEL)
 
     setup_logging(
         level=settings.LOGGING.LEVEL,
@@ -52,18 +15,33 @@ def main() -> None:
     )
 
     logger = get_logger(__name__)
-    logger.info(f"Logging initialized with level: {settings.LOGGING.LEVEL}")
-    logger.warning("This is a warning message.")
-    logger.error("This is an error message.")
-    logger.debug("Logging correctly set to DEBUG level.")
+    logger.info("Application context initialized.")
 
-    logger.info(f"{settings.APP.NAME} v{settings.APP.VERSION} initialized.")
+    return AppContext(settings=settings, logger=logger)
 
-    calc = Calculator()
-    logger.info("Addition: %s", calc.add(10, 5))
-    logger.info("Subtraction: %s", calc.subtract(10, 5))
-    logger.info("Multiplication: %s", calc.multiply(10, 5))
-    logger.info("Division: %s", calc.divide(10, 5))
+
+def create_app(context: AppContext | None = None) -> App:
+    if context is None:
+        context = create_app_context()
+
+    logger = context.logger
+    logger.info("Creating App instance...")
+    app = App(context)
+    logger.info("App instance created.")
+
+    return app
+
+
+def main() -> None:
+    context = create_app_context()
+    app = create_app(context=context)
+    logger = app.context.logger
+
+    logger.info("Performing sample calculations...")
+    app.do_math()
+
+    logger.info("Starting the application...")
+    app.run()
 
 
 if __name__ == "__main__":

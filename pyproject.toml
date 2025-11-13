@@ -54,6 +54,7 @@ exclude = [
 
 [tool.pytest.ini_options]
 addopts = "-v -r a -s"
+pythonpath = "app"
 testpaths = [
     "tests",
     "integration",

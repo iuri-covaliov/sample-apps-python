@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -39,8 +38,6 @@ class Settings(BaseSettings):
 
     def __init__(self) -> None:
         super().__init__()
-        # get app PORT from env var on production
-        if self.APP.MODE == "PROD":
-            self.APP.PORT = int(os.getenv("PORT", self.APP.PORT))
+
         # Ensure app data directories exist
         self.APP.DATA_DIR.mkdir(parents=True, exist_ok=True)

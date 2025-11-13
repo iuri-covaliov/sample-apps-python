@@ -1,150 +1,53 @@
-from contextlib import nullcontext as does_not_raise
-from typing import Any, Union
 from unittest.mock import MagicMock, patch
 
-import pytest
-
-from app.main import Calculator, main
-
-
-class TestCheckNumbers:
-    @pytest.mark.parametrize(
-        "a, b",
-        [
-            (1, 2),
-            (1.5, 2.5),
-            (-1, -2),
-            (0, 0),
-        ],
-    )
-    def test_valid_numbers(self, a: Union[int, float], b: Union[int, float]) -> None:
-        # Should not raise any exception
-        Calculator.add(a, b)
-
-    @pytest.mark.parametrize(
-        "a, b",
-        [
-            ("1", 2),
-            (1, "2"),
-            (None, 2),
-            (1, []),
-        ],
-    )
-    def test_invalid_numbers(self, a: Any, b: Any) -> None:
-        with pytest.raises(TypeError):
-            Calculator.add(a, b)
+from app.core.appcontext import AppContext
+# from app.main import main
 
 
-class TestCalculator:
-    @pytest.mark.parametrize(
-        "a, b, expected_result",
-        [
-            (1, 2, 3),
-            (1, -2, -1),
-            (2.5, 2.5, 5.0),
-        ],
-    )
-    def test_add(
-        self,
-        a: Union[int, float],
-        b: Union[int, float],
-        expected_result: Union[int, float],
-    ) -> None:
-        assert Calculator.add(a, b) == expected_result
+class TestCreateApp:
+    """Test the create_app function behavior."""
 
-    @pytest.mark.parametrize(
-        "a, b, expected_result",
-        [
-            (1, 2, -1),
-            (1, -2, 3),
-            (2.5, 2.5, 0.0),
-        ],
-    )
-    def test_subtract(
-        self,
-        a: Union[int, float],
-        b: Union[int, float],
-        expected_result: Union[int, float],
-    ) -> None:
-        assert Calculator.subtract(a, b) == expected_result
+    def test_create_app_returns_app_instance(self, app_context: AppContext) -> None:
+        """Test that create_app returns an App instance with correct context."""
+        # Import here to avoid circular imports during testing
+        from app.main import create_app
+        from app.core.dummy_app import DummyApp as App
 
-    @pytest.mark.parametrize(
-        "a, b, expected_result",
-        [
-            (1, 2, 2),
-            (1, -2, -2),
-            (2.5, 2.5, 6.25),
-        ],
-    )
-    def test_multiply(
-        self,
-        a: Union[int, float],
-        b: Union[int, float],
-        expected_result: Union[int, float],
-    ) -> None:
-        assert Calculator.multiply(a, b) == expected_result
+        app = create_app()
 
-    @pytest.mark.parametrize(
-        "a, b, expected_result, expectation",
-        [
-            (1, 2, 0.5, does_not_raise()),
-            (4, -2, -2, does_not_raise()),
-            (2.5, 2, 1.25, does_not_raise()),
-            (2, 0, 0, pytest.raises(ValueError)),
-        ],
-    )
-    def test_divide(
-        self,
-        a: Union[int, float],
-        b: Union[int, float],
-        expected_result: Union[int, float],
-        expectation: Any,
-    ) -> None:
-        with expectation:
-            assert Calculator.divide(a, b) == expected_result
+        assert app is not None
+        assert isinstance(app, App)
 
 
 class TestMain:
     """Test the main function behavior."""
 
-    @patch("app.main.setup_logging")
-    @patch("app.main.get_logger")
-    @patch("builtins.print")
+    @patch("app.main.create_app")
     def test_main_function_calls_and_logging(
         self,
-        mock_print: Any,
-        mock_get_logger: Any,
-        mock_setup_logging: Any,
-        test_env: None,
+        mock_create_app: MagicMock,
+        app_context: AppContext,
     ) -> None:
-        """Test that main function initializes settings, logging, etc."""
-        # Mock logger
-        mock_logger = MagicMock()
-        mock_get_logger.return_value = mock_logger
+        """Test that main function calls create_app, do_math, run and logs correctly."""
+        from app.main import main
+        from app.core.dummy_app import DummyApp
+
+        # Create a mock app instance with the required methods
+        mock_app = MagicMock(spec=DummyApp)
+        mock_app.context = app_context
+        mock_app.context.logger = app_context.logger
+
+        # Mock create_app to return our mock app
+        mock_create_app.return_value = mock_app
 
         # Call main function
         main()
 
-        # Verify print was called with log level (defaults from Settings)
-        mock_print.assert_called_once_with("App Settings. Log level: ", "DEBUG")
+        # Assert create_app was called once
+        mock_create_app.assert_called_once()
 
-        # Verify setup_logging was called with correct parameters (defaults)
-        mock_setup_logging.assert_called_once_with(
-            level="DEBUG",
-            fmt="[%(levelname)s|%(module)s|line:%(lineno)d] %(asctime)s: %(message)s",
-            date_fmt="%Y-%m-%d %H:%M:%S",
-        )
+        # Assert do_math was called on the app
+        mock_app.do_math.assert_called_once()
 
-        # Verify get_logger was called
-        mock_get_logger.assert_called_once_with("app.main")
-
-        # Check logger calls
-        assert mock_logger.info.call_count == 6
-        assert mock_logger.warning.call_count == 1
-        assert mock_logger.error.call_count == 1
-        assert mock_logger.debug.call_count == 1
-
-        # Check specific logger calls
-        mock_logger.warning.assert_called_with("This is a warning message.")
-        mock_logger.error.assert_called_with("This is an error message.")
-        mock_logger.debug.assert_called_with("Logging correctly set to DEBUG level.")
+        # Assert run was called on the app
+        mock_app.run.assert_called_once()

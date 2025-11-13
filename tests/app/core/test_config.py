@@ -1,5 +1,6 @@
 from unittest.mock import MagicMock, patch
 
+from app.core.appcontext import AppContext
 from tests.conftest import MOCK_ENV_VARS
 
 
@@ -14,7 +15,7 @@ class TestSettings:
 
     def test_settings_take_env_vars_for_test_env(
         self,
-        test_env: None,
+        app_context: AppContext,
     ) -> None:
         with patch("app.core.config.Path.mkdir", MagicMock()):
             from app.core.config import Settings
