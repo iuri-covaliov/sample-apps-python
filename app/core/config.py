@@ -36,8 +36,8 @@ class Settings(BaseSettings):
     APP: AppSettings = AppSettings()
     LOGGING: LoggingSettings = LoggingSettings()
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
         # Ensure app data directories exist
         self.APP.DATA_DIR.mkdir(parents=True, exist_ok=True)
