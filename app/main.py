@@ -14,7 +14,7 @@ def create_app(settings: Settings, logger: logging.Logger) -> API:
     api = API()
 
     @api.get("/")
-    def index(args: Any) -> dict[str, Any]:
+    def get_index(args: Any) -> dict[str, Any]:
         return {
             "name": settings.APP.NAME,
             "description": settings.APP.DESCRIPTION,
@@ -23,7 +23,7 @@ def create_app(settings: Settings, logger: logging.Logger) -> API:
         }
 
     @api.get("/health")
-    def health(args: Any) -> dict[str, Any]:
+    def get_health(args: Any) -> dict[str, Any]:
         return {"status": "healthy"}
 
     logger.info("API application created successfully.")

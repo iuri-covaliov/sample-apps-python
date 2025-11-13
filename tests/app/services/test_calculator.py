@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from app.services.calculator import Calculator, main
+from tests.conftest import AppContext
 
 
 class TestCheckNumbers:
@@ -115,7 +116,7 @@ class TestMain:
         mock_print: Any,
         mock_get_logger: Any,
         mock_setup_logging: Any,
-        test_env: None,
+        app_context: AppContext,
     ) -> None:
         """Test that main function initializes settings, logging, etc."""
         # Mock logger
