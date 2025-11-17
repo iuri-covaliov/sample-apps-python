@@ -1,6 +1,11 @@
 # Python Sample app
 
-Barebones for a modern Python projects.
+Barebones for a modern Python projects - a project template with all infrastructure for maintaining and testing configured and installed. Could be helpful if you are:
+- **Starting a new Python project** and want a solid foundation with best practices already configured
+- **Learning modern Python development** patterns including dependency management, testing, and CI/CD
+- **A DevOps engineer** looking for a simple Python app to experiment with containerization, deployment pipelines, or monitoring
+- **Prototyping or building small tools** that need proper structure without the overhead of larger frameworks
+- **Teaching or demonstrating** Python project organization and development workflows
 
 ## What is included
 
@@ -14,7 +19,8 @@ Barebones for a modern Python projects.
 - **github workflow**: basic CI/CD pipeline
 - **dockerization**: basic Dockerfile and docker-compose
 
-> App specifics depends on the branch, information about current implementation is [here](app/README.md)
+## Application Details
+The specific implementation details are documented in the [app folder README](app/README.md).
 
 ## Config.py and environment variables.
 
