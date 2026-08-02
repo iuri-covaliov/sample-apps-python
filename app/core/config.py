@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 from dotenv import load_dotenv
 from pydantic import BaseModel
@@ -36,7 +37,7 @@ class Settings(BaseSettings):
     APP: AppSettings = AppSettings()
     LOGGING: LoggingSettings = LoggingSettings()
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
         # Ensure app data directories exist
